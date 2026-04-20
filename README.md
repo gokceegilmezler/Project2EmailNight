@@ -1,3 +1,5 @@
+## 🚀 Dinamik Dashboard & Mesaj Yönetim Sistemi
+
 ## 📌 Proje Özellikleri
 - 🔐 Kullanıcı kayıt ve giriş sistemi (ASP.NET Identity)
 - 📬 Mesajlaşma sistemi (Gelen Kutusu / Giden Kutusu)
