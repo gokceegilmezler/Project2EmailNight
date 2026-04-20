@@ -1,0 +1,48 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="/vertical/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/vertical/assets/css/app.css" rel="stylesheet" />
+</head>
+
+<body class="bg-login">
+
+    <div class="container mt-5" style="max-width:400px">
+
+        <h3>Email Doğrulama</h3>
+
+        <!-- HATALAR -->
+        @foreach (var item in ViewData.ModelState.Values)
+        {
+            foreach (var error in item.Errors)
+            {
+                <div class="alert alert-danger">@error.ErrorMessage</div>
+            }
+        }
+
+        <form method="post">
+
+            <label>Email</label>
+            <input type="text" name="email" value="@ViewBag.email" readonly class="form-control" />
+
+            <br />
+
+            <label>Doğrulama Kodu</label>
+            <input type="number" name="confirmCode" class="form-control" placeholder="6 haneli kod" />
+
+            <br />
+
+            <button class="btn btn-primary w-100">Doğrula</button>
+
+        </form>
+    </div>
+
+</body>
+</html>

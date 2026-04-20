@@ -1,0 +1,38 @@
+﻿@model List<Project2EmailNight.Entities.Message>
+@{
+    Layout = null;
+}
+<link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container">
+    <br /><br />
+
+    <div class="mb-3">
+        <a href="/Message/Inbox" class="btn btn-primary">Gelen Kutusu</a>
+        <a href="/Message/Sendbox" class="btn btn-secondary">Gönderilenler</a>
+        <a href="/Message/Starred" class="btn btn-warning">Yıldızlı</a>
+    </div>
+
+    <table class="table table-hover">
+        <tr>
+            <th>#</th>
+            <th>Gönderici</th>
+            <th>Konu</th>
+            <th>Tarih</th>
+            <th>Mesajı Aç</th>
+            <th>Sil</th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.MessageId</td>
+                <td>@item.ReceiverEmail</td>
+                <td>@item.Subject</td>
+                <td>@item.SendDate.ToString("dd-MM-yyyy")</td>
+                <td><a href="/Message/MessageDetail/@item.MessageId" class="btn btn-warning">Mesajı Aç</a></td>
+                <td><a href="/Message/DeleteMessage/@item.MessageId" class="btn btn-danger" onclick="return confirm('Silmek istediğine emin misin?')">Mesajı Sil</a></td>
+                
+            </tr>
+        }
+    </table>
+</div>

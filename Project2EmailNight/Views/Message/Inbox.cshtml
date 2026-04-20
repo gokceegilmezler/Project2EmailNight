@@ -1,0 +1,319 @@
+﻿@model List<Project2EmailNight.Entities.Message>
+@{
+    Layout = null;
+
+    var inboxCount  = ViewBag.InboxCount  ?? Model.Count;
+    var sentCount   = ViewBag.SentCount   ?? 0;
+    var starCount   = ViewBag.StarCount   ?? 0;
+    var spamCount   = ViewBag.SpamCount   ?? 0;
+    var draftCount  = ViewBag.DraftCount  ?? 0;
+    var msgCount    = ViewBag.MsgCount    ?? 0;
+    var notifCount  = ViewBag.NotifCount  ?? 0;
+    var userName    = ViewBag.UserName    ?? "Kullanıcı";
+    var userStatus  = ViewBag.UserStatus  ?? "Available";
+    var unreadCount = ViewBag.unreadCount ?? 0;
+    var avatarInitial = userName.ToString().Length >= 2 ? userName.ToString().Substring(0, 2).ToUpper() : "U";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gelen Kutusu - Syndash</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; background: #f4f5f7; color: #111; }
+
+        .ds-wrap { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        /* ── NAVBAR ── */
+        .ds-nav { display: flex; align-items: center; gap: 12px; background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 20px; height: 58px; flex-shrink: 0; z-index: 50; }
+        .ds-brand { display: flex; align-items: center; gap: 9px; font-size: 18px; font-weight: 700; color: #7c5cbf; text-decoration: none; flex-shrink: 0; width: 205px; }
+        .ds-hamburger { cursor: pointer; color: #6b7280; flex-shrink: 0; display: flex; }
+        .ds-search { flex: 1; max-width: 560px; display: flex; align-items: center; gap: 8px; background: #f4f5f7; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0 12px; height: 36px; }
+        .ds-search input { border: none; background: transparent; outline: none; font-size: 13px; color: #111; width: 100%; }
+        .ds-search input::placeholder { color: #9ca3af; }
+        .ds-nav-right { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0; }
+        .ds-icon-btn { position: relative; width: 36px; height: 36px; border-radius: 50%; background: #f4f5f7; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .15s; }
+        .ds-icon-btn:hover { background: #ede9f7; }
+        .ds-icon-btn svg { width: 15px; height: 15px; color: #6b7280; }
+        .ds-badge { position: absolute; top: -3px; right: -3px; background: #e24b4a; color: #fff; font-size: 9px; font-weight: 700; border-radius: 10px; padding: 1px 5px; line-height: 1.4; min-width: 16px; text-align: center; }
+        .ds-user { display: flex; align-items: center; gap: 8px; }
+        .ds-avatar { width: 36px; height: 36px; border-radius: 50%; background: #7c5cbf; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .ds-uname { font-size: 12px; font-weight: 600; color: #111; white-space: nowrap; line-height: 1.3; }
+        .ds-ustatus { font-size: 11px; color: #22b573; display: flex; align-items: center; gap: 3px; line-height: 1.3; }
+        .ds-ustatus::before { content: ''; width: 6px; height: 6px; background: #22b573; border-radius: 50%; flex-shrink: 0; }
+        .ds-lang { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #6b7280; }
+
+        /* ── BODY ── */
+        .ds-body { display: flex; flex: 1; overflow: hidden; }
+
+        /* ── SIDEBAR ── */
+        .ds-sidebar { width: 210px; flex-shrink: 0; background: #fff; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 2px; padding: 14px 10px; overflow-y: auto; }
+        .ds-new-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #7c5cbf; color: #fff; border: none; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 10px; transition: background .15s; text-decoration: none; }
+        .ds-new-btn:hover { background: #6a4db0; color: #fff; }
+        .ds-new-btn svg { width: 14px; height: 14px; }
+        .ds-sec { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .08em; padding: 8px 8px 3px; }
+        .ds-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; color: #6b7280; transition: background .15s; text-decoration: none; }
+        .ds-item:hover { background: #f4f5f7; color: #6b7280; }
+        .ds-item.active { background: #f0ebfb; color: #7c5cbf; font-weight: 600; }
+        .ds-item svg { width: 14px; height: 14px; flex-shrink: 0; }
+        .ds-item .cnt { margin-left: auto; font-size: 10px; font-weight: 500; background: #f0f0f0; padding: 1px 7px; border-radius: 10px; color: #6b7280; }
+        .ds-item.active .cnt { background: #e0d3f7; color: #7c5cbf; }
+        .ds-div { height: 1px; background: #f0f0f0; margin: 6px 0; }
+
+        /* ── CONTENT ── */
+        .ds-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+        /* ── INBOX TOOLBAR ── */
+        .inbox-toolbar {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 20px; background: #fff;
+            border-bottom: 1px solid #e5e7eb; flex-shrink: 0;
+        }
+        .tb-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; color: #6b7280; transition: all .15s; }
+        .tb-btn:hover { background: #f4f5f7; color: #7c5cbf; border-color: #7c5cbf; }
+        .tb-btn svg { width: 14px; height: 14px; }
+        .tb-search { display: flex; align-items: center; gap: 8px; background: #f4f5f7; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0 12px; height: 32px; flex: 1; max-width: 320px; }
+        .tb-search input { border: none; background: transparent; outline: none; font-size: 12px; color: #111; width: 100%; }
+        .tb-search input::placeholder { color: #9ca3af; }
+        .tb-spacer { flex: 1; }
+        .tb-count { font-size: 12px; color: #9ca3af; white-space: nowrap; }
+        .tb-page-btn { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; color: #6b7280; transition: all .15s; }
+        .tb-page-btn:hover { background: #f4f5f7; }
+        .tb-page-btn svg { width: 13px; height: 13px; }
+
+        /* ── MAIL LIST ── */
+        .mail-list { flex: 1; overflow-y: auto; }
+        .mail-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 0 20px; height: 52px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer; transition: background .1s;
+            text-decoration: none; color: inherit;
+        }
+        .mail-row:hover { background: #f9fafb; }
+        .mail-row.unread { background: #fff; font-weight: 600; }
+        .mail-row.unread:hover { background: #f9fafb; }
+        .mail-row.read { background: #fafafa; }
+
+        .mail-check { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid #d1d5db; flex-shrink: 0; cursor: pointer; }
+        .mail-star { flex-shrink: 0; cursor: pointer; color: #d1d5db; transition: color .15s; }
+        .mail-star:hover, .mail-star.starred { color: #f59e0b; }
+        .mail-star svg { width: 15px; height: 15px; }
+
+        .mail-sender { width: 180px; flex-shrink: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .mail-unread-dot { width: 8px; height: 8px; background: #7c5cbf; border-radius: 50%; flex-shrink: 0; }
+        .mail-unread-dot.hidden { visibility: hidden; }
+
+        .mail-body-preview { flex: 1; font-size: 13px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; }
+        .mail-body-preview .subject { color: #111; font-weight: inherit; }
+        .mail-body-preview .separator { margin: 0 6px; color: #d1d5db; }
+
+        .mail-date { font-size: 12px; color: #9ca3af; white-space: nowrap; flex-shrink: 0; }
+        .mail-actions { display: flex; gap: 4px; opacity: 0; transition: opacity .15s; flex-shrink: 0; }
+        .mail-row:hover .mail-actions { opacity: 1; }
+        .mail-row:hover .mail-date { display: none; }
+        .action-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #6b7280; transition: all .15s; }
+        .action-btn:hover { background: #f0f0f0; color: #e24b4a; }
+        .action-btn svg { width: 13px; height: 13px; }
+
+        /* ── EMPTY STATE ── */
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 12px; color: #9ca3af; padding: 60px 20px; }
+        .empty-state svg { width: 48px; height: 48px; opacity: .3; }
+        .empty-state p { font-size: 15px; }
+    </style>
+</head>
+<body>
+<div class="ds-wrap">
+
+    <!-- NAVBAR -->
+    <nav class="ds-nav">
+        <a class="ds-brand" href="/Dashboard">
+            <svg width="28" height="28" viewBox="0 0 28 28">
+                <circle cx="14" cy="14" r="14" fill="#7c5cbf"/>
+                <rect x="6" y="10" width="16" height="10" rx="1.5" fill="none" stroke="#fff" stroke-width="1.5"/>
+                <polyline points="6,11 14,17 22,11" fill="none" stroke="#fff" stroke-width="1.5"/>
+            </svg>
+            Syndash
+        </a>
+        <div class="ds-hamburger">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </div>
+        <div class="ds-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" placeholder="search" />
+        </div>
+        <div class="ds-nav-right">
+            <div class="ds-icon-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span class="ds-badge">@msgCount</span>
+            </div>
+            <div class="ds-icon-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="ds-badge">@notifCount</span>
+            </div>
+            <div class="ds-icon-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+            </div>
+            <div class="ds-user">
+                <div class="ds-avatar">@avatarInitial</div>
+                <div style="display:flex;flex-direction:column;">
+                    <span class="ds-uname">@userName</span>
+                    <span class="ds-ustatus">@userStatus</span>
+                </div>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="ds-lang">
+                <svg width="26" height="17" viewBox="0 0 30 20">
+                    <rect width="30" height="20" fill="#E30A17"/>
+                    <circle cx="11" cy="10" r="6" fill="#fff"/>
+                    <circle cx="13" cy="10" r="4.8" fill="#E30A17"/>
+                    <polygon points="18,7 18.6,9 20.6,9 19,10.2 19.6,12.2 18,11 16.4,12.2 17,10.2 15.4,9 17.4,9" fill="#fff"/>
+                </svg>
+                TR
+            </div>
+        </div>
+    </nav>
+
+    <div class="ds-body">
+
+        <!-- SIDEBAR -->
+        <aside class="ds-sidebar">
+            <a class="ds-new-btn" href="/Message/Create">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Yeni Mesaj
+            </a>
+            <a class="ds-item" href="/Dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+            <div class="ds-div"></div>
+            <div class="ds-sec">Posta Kutusu</div>
+            <a class="ds-item active" href="/Message/Inbox">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                Gelen Kutusu
+                @if ((int)unreadCount > 0) { <span class="cnt" style="background:#7c5cbf;color:#fff;">@unreadCount</span> }
+                else { <span class="cnt">@inboxCount</span> }
+            </a>
+            <a class="ds-item" href="/Message/Sendbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Giden Kutusu<span class="cnt">@sentCount</span></a>
+            <a class="ds-item" href="/Message/Starred"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Yıldızlı<span class="cnt">@starCount</span></a>
+            <a class="ds-item" href="/Message/Spam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>Spam<span class="cnt">@spamCount</span></a>
+            <a class="ds-item" href="/Message/Drafts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Taslak<span class="cnt">@draftCount</span></a>
+            <a class="ds-item" href="/Message/Trash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>Çöp Kutusu</a>
+            <div class="ds-div"></div>
+            <a class="ds-item" href="/UserProfile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Profil</a>
+            
+        </aside>
+
+        <!-- INBOX -->
+        <div class="ds-content">
+
+            <!-- Toolbar -->
+            <div class="inbox-toolbar">
+                <div class="tb-btn" title="Yenile" onclick="window.location.reload()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                </div>
+                <div class="tb-btn" title="Arşivle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+                </div>
+                <div class="tb-btn" title="Spam">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                </div>
+                <div class="tb-btn" title="Sil">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                </div>
+                <div class="tb-search">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#9ca3af" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input type="text" id="searchInput" placeholder="Mail ara..." onkeyup="filterMails()" />
+                </div>
+                <div class="tb-spacer"></div>
+                <span class="tb-count">1-@Model.Count / @Model.Count</span>
+                <div class="tb-page-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                </div>
+                <div class="tb-page-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
+            </div>
+
+            <!-- Mail List -->
+            <div class="mail-list" id="mailList">
+                @if (Model.Count == 0)
+                {
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <p>Gelen kutunuz boş</p>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <a class="mail-row @(item.IsStatus ? "read" : "unread")"
+                           href="/Message/MessageDetail/@item.MessageId"
+                           data-sender="@item.SenderEmail"
+                           data-subject="@item.Subject">
+
+                            <input class="mail-check" type="checkbox" onclick="event.stopPropagation(); event.preventDefault();" />
+
+                            <div class="mail-star @(item.IsStatus ? "" : "")"
+                                 onclick="event.stopPropagation(); event.preventDefault(); toggleStar(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                            </div>
+
+                            <div class="mail-unread-dot @(item.IsStatus ? "hidden" : "")"></div>
+
+                            <div class="mail-sender">@item.SenderEmail</div>
+
+                            <div class="mail-body-preview">
+                                <span class="subject">@item.Subject</span>
+                                <span class="separator">—</span>
+                                @(item.MessageDetail != null && item.MessageDetail.Length > 80
+                                    ? item.MessageDetail.Substring(0, 80) + "..."
+                                    : item.MessageDetail)
+                            </div>
+
+                            <div class="mail-date">@item.SendDate.ToString("dd MMM")</div>
+
+                            <div class="mail-actions" onclick="event.stopPropagation(); event.preventDefault();">
+                                <a class="action-btn" href="/Message/DeleteMessage/@item.MessageId"
+                                   onclick="return confirm('Mesajı silmek istediğine emin misin?')" title="Sil">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                                </a>
+                            </div>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleStar(el) {
+        el.classList.toggle('starred');
+        const svg = el.querySelector('svg');
+        if (el.classList.contains('starred')) {
+            svg.setAttribute('fill', '#f59e0b');
+            svg.setAttribute('stroke', '#f59e0b');
+        } else {
+            svg.setAttribute('fill', 'none');
+            svg.setAttribute('stroke', 'currentColor');
+        }
+    }
+
+    function filterMails() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        document.querySelectorAll('.mail-row').forEach(row => {
+            const sender  = row.dataset.sender?.toLowerCase() || '';
+            const subject = row.dataset.subject?.toLowerCase() || '';
+            row.style.display = (sender.includes(query) || subject.includes(query)) ? '' : 'none';
+        });
+    }
+</script>
+</body>
+</html>

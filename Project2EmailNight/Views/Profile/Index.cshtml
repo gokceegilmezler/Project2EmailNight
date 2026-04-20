@@ -1,0 +1,63 @@
+﻿@model Project2EmailNight.Dtos.UserEditDto
+@{
+    Layout = null;
+}
+
+
+<link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h4 class="mb-4 text-center">Profil Bilgilerini Güncelle</h4>
+
+            <form method="post" enctype="multipart/form-data">
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <label>Ad</label>
+                        <input type="text" asp-for="Name" class="form-control" placeholder="Adınız" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Soyad</label>
+                        <input type="text" asp-for="Surname" class="form-control" placeholder="Soyadınız" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Email</label>
+                        <input type="email" asp-for="Email" class="form-control" placeholder="Email Adresi" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Şifre</label>
+                        <input type="password" asp-for="Password" class="form-control" placeholder="Yeni şifre (opsiyonel)" />
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label>Profil Resmi</label>
+                        <input type="file" asp-for="Image" class="form-control" />
+                    </div>
+
+                    <div class="col-md-12 text-center mb-3">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="/images/@Model.ImageUrl" class="rounded-circle" width="120" height="120" style="object-fit:cover;" />
+                        }
+                    </div>
+
+                </div>
+
+                <div class="text-center">
+                    <button class="btn px-4" style="background-color:#6f42c1; color:white;">
+                        Bilgileri Kaydet
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>

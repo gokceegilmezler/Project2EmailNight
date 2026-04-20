@@ -1,0 +1,169 @@
+﻿@model Project2EmailNight.Dtos.UserRegisterDto
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kayıt Ol</title>
+
+    <!-- CSS -->
+    <link rel="icon" href="/vertical/assets/images/favicon-32x32.png" />
+    <link href="/vertical/assets/css/pace.min.css" rel="stylesheet" />
+    <link href="/vertical/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/vertical/assets/css/icons.css" rel="stylesheet" />
+    <link href="/vertical/assets/css/app.css" rel="stylesheet" />
+</head>
+
+<body class="bg-register">
+
+    <div class="wrapper">
+        <div class="section-authentication-register d-flex align-items-center justify-content-center">
+            <div class="row">
+                <div class="col-12 col-lg-10 mx-auto">
+                    <div class="card radius-15 overflow-hidden">
+                        <div class="row g-0">
+
+                            <!-- FORM -->
+                            <div class="col-xl-6">
+                                <div class="card-body p-md-5">
+
+                                    <div class="text-center">
+                                        <img src="/vertical/assets/images/logo-icon.png" width="80" />
+                                        <h3 class="mt-4">Create an Account</h3>
+                                    </div>
+
+                                    <!-- HATALAR -->
+                                    @foreach (var item in ViewData.ModelState.Values)
+                                    {
+                                        foreach (var error in item.Errors)
+                                        {
+                                            <div class="alert alert-danger">@error.ErrorMessage</div>
+                                        }
+                                    }
+
+                                    <div class="form-body mt-3">
+                                        <form method="post" class="row g-3">
+
+                                            <div class="col-sm-6">
+                                                <label class="form-label">First Name</label>
+                                                <input type="text" class="form-control" asp-for="Name" required>
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <label class="form-label">Last Name</label>
+                                                    <input type="text" class="form-control" asp-for="Surname" required>
+                                                    </div>
+
+                                                    <div class="col-12">
+                                                        <label class="form-label">Username</label>
+                                                        <input type="text" class="form-control" asp-for="Username" required>
+                                                        </div>
+
+                                                        <div class="col-12">
+                                                            <label class="form-label">Email Address</label>
+                                                            <input type="email" class="form-control" asp-for="Email" required>
+                                                            </div>
+
+                                                            <div class="col-12">
+                                                                <label class="form-label">Password</label>
+                                                                <div class="input-group" id="show_hide_password">
+                                                                    <input type="password" class="form-control border-end-0" asp-for="Password" required>
+                                                                        <a href="javascript:;" class="input-group-text bg-transparent">
+                                                                            <i class="bx bx-hide"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- TERMS -->
+                                                                <div class="col-12">
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input" type="checkbox" required>
+                                                                        <label class="form-check-label">
+                                                                            I read and agree to
+                                                                            <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">
+                                                                                Terms & Conditions
+                                                                            </a>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-12">
+                                                                    <div class="d-grid">
+                                                                        <button type="submit" class="btn btn-primary">
+                                                                            <i class="bx bx-user me-1"></i> Sign up
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- SAĞ RESİM -->
+                                                <div class="col-xl-6 bg-login-color d-flex align-items-center justify-content-center">
+                                                    <img src="/vertical/assets/images/login-images/register-frent-img.jpg" class="img-fluid" />
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MODAL -->
+                        <div class="modal fade" id="termsModal" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Terms & Conditions</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <h6>Kullanım Şartları</h6>
+                                        <p>Bu platformu kullanarak şartları kabul etmiş olursunuz.</p>
+
+                                        <h6>Gizlilik</h6>
+                                        <p>Verileriniz güvenli şekilde saklanır.</p>
+
+                                        <h6>Kurallar</h6>
+                                        <ul>
+                                            <li>Spam yasaktır</li>
+                                            <li>Saygılı olun</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- JS -->
+                        <script src="/vertical/assets/js/jquery.min.js"></script>
+                        <script src="/vertical/assets/js/bootstrap.bundle.min.js"></script>
+
+                        <!-- Şifre göster/gizle -->
+                        <script>
+                            $(document).ready(function () {
+                            $("#show_hide_password a").on('click', function (event) {
+                            event.preventDefault();
+                            let input = $('#show_hide_password input');
+                            if (input.attr("type") === "text") {
+                            input.attr('type', 'password');
+                            } else {
+                            input.attr('type', 'text');
+                            }
+                            });
+                            });
+                        </script>
+
+                    </body>
+                </html>

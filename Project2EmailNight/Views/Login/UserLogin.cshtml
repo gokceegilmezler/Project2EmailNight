@@ -1,0 +1,69 @@
+﻿@model Project2EmailNight.Dtos.UserLoginDto
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="/vertical/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/vertical/assets/css/icons.css" rel="stylesheet" />
+    <link href="/vertical/assets/css/app.css" rel="stylesheet" />
+
+    <style>
+            html, body {
+                height: 100%;
+                overflow: hidden;
+            }
+    </style>
+</head>
+
+<body class="bg-login">
+
+    <div class="wrapper h-100">
+        <div class="d-flex align-items-center justify-content-center h-100">
+
+            <div class="col-12 col-lg-4">
+                <div class="card radius-15">
+                    <div class="card-body p-4">
+
+                        <h4 class="text-center mb-4">Giriş Yap</h4>
+
+                        <!-- HATALAR -->
+                        @foreach (var item in ViewData.ModelState.Values)
+                        {
+                            foreach (var error in item.Errors)
+                            {
+                                <div class="alert alert-danger">@error.ErrorMessage</div>
+                            }
+                        }
+
+                        <!-- FORM -->
+                        <form method="post">
+
+                            <label>Kullanıcı Adı</label>
+                            <input type="text" class="form-control" asp-for="Username">
+                                <br />
+
+                                <label>Şifreniz</label>
+                                <input type="password" class="form-control" asp-for="Password">
+                                    <br />
+
+                                    <button class="btn btn-primary w-100">Giriş Yap</button>
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </body>
+    </html>
